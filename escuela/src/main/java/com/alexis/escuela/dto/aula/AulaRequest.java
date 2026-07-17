@@ -1,9 +1,6 @@
 package com.alexis.escuela.dto.aula;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public record AulaRequest(
 
@@ -13,6 +10,8 @@ public record AulaRequest(
 
         @NotNull(message = "La cantidad es requerida")
         @Positive(message = "La cantidad debe ser positiva")
+        @Min(value = 1, message = "La capacidad minima es 1")
+        @Max(value = 4, message = "Los capacidad máximo son 4")
         Integer capacidad
 
 ) {}

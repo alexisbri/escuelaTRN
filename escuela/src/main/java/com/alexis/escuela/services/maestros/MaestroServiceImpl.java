@@ -22,9 +22,11 @@ import java.util.List;
 @Transactional
 public class MaestroServiceImpl implements MaestroService{
 
+
     private final MaestroRepository maestroRepository;
     private final MaestroMapper maestroMapper;
     private final GrupoRepository grupoRepository;
+
 
     @Override
     @Transactional(readOnly = true)
@@ -34,11 +36,13 @@ public class MaestroServiceImpl implements MaestroService{
                 .map(maestroMapper::entidadAResponse).toList();
     }
 
+
     @Override
     @Transactional(readOnly = true)
     public MaestroResponse obtenerPorId(Long id) {
         return maestroMapper.entidadAResponse(obtenerMaestro(id));
     }
+
 
     @Override
     public MaestroResponse registrar(MaestroRequest request) {
@@ -56,11 +60,15 @@ public class MaestroServiceImpl implements MaestroService{
         return maestroMapper.entidadAResponse(maestro);
     }
 
+
     @Override
     public MaestroResponse actualizar(MaestroRequest request, Long id) {
+
         log.info("Actualizando maestro con id: {}", id);
+
         Maestro maestro = obtenerMaestro(id);
         validarDatosUnicosActualizar(request, id);
+
         maestro.actualizar(
                 request.nombre(),
                 request.apellidoPaterno(),
@@ -68,10 +76,14 @@ public class MaestroServiceImpl implements MaestroService{
                 request.email(),
                 request.telefono()
         );
+
         maestroRepository.save(maestro);
+
         log.info("Maestro con id: {} actualizado", id);
+
         return maestroMapper.entidadAResponse(maestro);
     }
+
 
     @Override
     public void eliminar(Long id) {
@@ -85,27 +97,41 @@ public class MaestroServiceImpl implements MaestroService{
         log.info("Maestro con id: {} eliminado", id);
     }
 
+
+
+    /// METODOS PRIVADOS -----
+
+
+
     private Maestro obtenerMaestro(Long id){
         return ServiceUtils.obtenerEntidadException(maestroRepository, id, Maestro.class);
     }
 
-    private void validarDatosUnicos(MaestroRequest request){
+
+    private void validarDatosUnicos(MaestroRequest request) {
         log.info("Validando email único...");
+
         if (maestroRepository.existsByEmailIgnoreCase(request.email()))
-            throw  new IllegalArgumentException("Ya existe un maestro registrado con el telefono: " + request.telefono());
+            throw  new IllegalArgumentException("Ya existe un maestro registrado con el correo: " + request.email());
+
         log.info("Validando teléfono único...");
+
         if (maestroRepository.existsByTelefono(request.telefono()))
             throw  new IllegalArgumentException("Ya existe un maestro registrado con el teléfono: " + request.telefono());
     }
-    private void validarDatosUnicosActualizar(MaestroRequest request, Long id){
+
+
+    private void validarDatosUnicosActualizar(MaestroRequest request, Long id) {
         log.info("Validando cambio en email único...");
+
         if (maestroRepository.existsByEmailIgnoreCaseAndIdNot(request.email(), id))
             throw  new IllegalArgumentException("Ya existe un maestro registrado con el email: " + request.email());
+
         log.info("Validando cambio en teléfono único...");
+
         if (maestroRepository.existsByTelefonoAndIdNot(request.telefono(), id))
             throw  new IllegalArgumentException("Ya existe un maestro registrado con el teléfono: " + request.telefono());
     }
-
 
 
 }

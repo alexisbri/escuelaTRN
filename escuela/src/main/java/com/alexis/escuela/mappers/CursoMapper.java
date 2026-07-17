@@ -33,7 +33,7 @@ public class CursoMapper implements CommonMapper<CursoRequest, CursoResponse, Cu
     @Override
     public CursoResponse entidadAResponse(Curso entidad) {
 
-        if (entidad==null) return null;
+        if (entidad == null) return null;
 
         String descripcion = entidad.getDescripcion() == null
                 ? "Sin descripción" : entidad.getDescripcion();
@@ -48,15 +48,19 @@ public class CursoMapper implements CommonMapper<CursoRequest, CursoResponse, Cu
     }
 
 
-    public DatosCurso entidadADatosCurso(Curso entidad){
-        if (entidad==null) return null;
+    public DatosCurso entidadADatosCurso(Curso entidad) {
+
+        if (entidad == null) return null;
+
         String descripcion = entidad.getDescripcion() == null
                 ? "Sin descripción" : entidad.getDescripcion();
+
         return new DatosCurso(
                 entidad.getNombre(),
                 descripcion,
                 entidad.getCreditos()
         );
+
     }
 
 
