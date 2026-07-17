@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 // <Entidad, TipoDelID> → Obligatorio. Define qué entidad gestiona el repositorio y el tipo de su clave primaria.
 public interface CursoRepository extends JpaRepository<Curso, Long> {
 
+    boolean existsByNombreIgnoreCase(String nombre);
 
+    boolean existsByNombreIgnoreCaseAndIdNot(String nombre, Long id);
 
 }

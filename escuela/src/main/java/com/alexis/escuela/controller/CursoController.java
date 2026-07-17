@@ -2,6 +2,7 @@ package com.alexis.escuela.controller;
 
 import com.alexis.escuela.dto.curso.CursoRequest;
 import com.alexis.escuela.dto.curso.CursoResponse;
+import com.alexis.escuela.services.aula.AulaService;
 import com.alexis.escuela.services.curso.CursoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -15,42 +16,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/cursos")
-@AllArgsConstructor
-@Validated
-public class CursoController {
+public class CursoController extends CommonController<CursoRequest, CursoResponse, CursoService> {
 
-    private final CursoService cursoService;
-
-    @GetMapping
-    public ResponseEntity<List<CursoResponse>> listar(
-            @RequestParam(required = false) String nombre,
-            @RequestParam(required = false) Integer capacidad) {
-        return ResponseEntity.ok(cursoService.listar(nombre, capacidad));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<CursoResponse> obtenerPorId(
-            @PathVariable @Positive(message = "El ID debe ser positivo") Long id) {
-        return ResponseEntity.ok(cursoService.obtenerPorId(id));
-    }
-
-    @PostMapping
-    public ResponseEntity<CursoResponse> registrar(@Valid @RequestBody CursoRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(cursoService.registrar(request));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<CursoResponse> actualizar(
-            @PathVariable @Positive(message = "El ID debe ser positivo") Long id,
-            @Valid @RequestBody CursoRequest request) {
-        return ResponseEntity.ok(cursoService.actualizar(request, id));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(
-            @PathVariable @Positive(message = "El ID debe ser positivo") Long id) {
-        cursoService.eliminar(id);
-        return ResponseEntity.noContent().build();
+    public CursoController (CursoService service) {
+        super(service);
     }
 
 }

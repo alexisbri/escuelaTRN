@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AulaMapper {
 
-    public Aula requestAula(AulaRequest request) {
+    public Aula requestAEntidad(AulaRequest request) {
 
         if (request == null) return null;
 
@@ -18,7 +18,7 @@ public class AulaMapper {
                 .build();
     }
 
-    public AulaResponse aulaResponse(Aula aula) {
+    public AulaResponse entidadAResponse(Aula aula) {
 
         if (aula == null) return null;
 

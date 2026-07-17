@@ -1,9 +1,13 @@
 package com.alexis.escuela.dto.horario;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record HorarioRequest(
+
+        @NotNull(message = "El grupo es obligatorio")
+        Long idGrupo,
 
         @NotBlank(message = "El día es obligatorio")
         @Pattern(regexp = "^(LUNES|MARTES|MIERCOLES|JUEVES|VIERNES|SABADO|DOMINGO)$",

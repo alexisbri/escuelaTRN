@@ -46,7 +46,7 @@ public class Aula {
 
     private void validarDatos(String nombre, Integer capacidad) {
 
-        StringCustomUtils.validarTamanio(nombre, 2, 30,
+        StringCustomUtils.validarTamanio(nombre.trim(), 2, 30,
                 "El nombre es requerido y debe tener entre 2 y 30 caracteres");
 
         if (capacidad == null || capacidad < 0)

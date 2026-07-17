@@ -3,9 +3,11 @@ package com.alexis.escuela.services.aula;
 import com.alexis.escuela.dto.aula.AulaRequest;
 import com.alexis.escuela.dto.aula.AulaResponse;
 import com.alexis.escuela.entities.Aula;
-import com.alexis.escuela.exceptions.RecursoNoEncontradoException;
+import com.alexis.escuela.exceptions.EntidadRelacionadaException;
 import com.alexis.escuela.mappers.AulaMapper;
 import com.alexis.escuela.repositories.AulaRepository;
+import com.alexis.escuela.repositories.GrupoRepository;
+import com.alexis.escuela.utils.ServiceUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,44 +22,48 @@ import java.util.List;
 public class AulaServiceImpl implements AulaService {
 
     private final AulaRepository aulaRepository;
+    private final GrupoRepository grupoRepository;
     private final AulaMapper aulaMapper;
 
     @Override
     @Transactional(readOnly = true)
-    public List<AulaResponse> listar (String nombre, Integer capacidad) {
+    public List<AulaResponse> listar() {
 
-        log.info("Listando aulas...");
+        log.info("Listando todas las aulas.");
 
         return aulaRepository.findAll().stream()
-                .map(aulaMapper::aulaResponse).toList();
+                .map(aulaMapper::entidadAResponse).toList();
+
     }
 
 
     @Override
     @Transactional(readOnly = true)
-    public AulaResponse obtenerPorId (long id) {
+    public AulaResponse obtenerPorId (Long id) {
 
-        return aulaMapper.aulaResponse(obtenerAulaOException(id));
+        return aulaMapper.entidadAResponse(obtenerAula(id));
     }
+
 
 
     @Override
     public AulaResponse registrar (AulaRequest request) {
 
-        log.info("Registrando aula...");
+        log.info("Registrando aula.");
 
-        Aula aula = aulaMapper.requestAula(request);
+        validarDatosUnicos(request);
+
+        Aula aula = aulaMapper.requestAEntidad(request);
         aulaRepository.save(aula);
 
-        log.info("Nueva aula {} registrada", aula.getNombre());
-
-        return aulaMapper.aulaResponse(aula);
+        return aulaMapper.entidadAResponse(aula);
     }
 
 
-    public AulaResponse actualizar (AulaRequest request, long id) {
+    public AulaResponse actualizar (AulaRequest request, Long id) {
 
-        Aula aula = obtenerAulaOException(id);
+        Aula aula = obtenerAula(id);
+        validarDatosUnicosActualizar(request, id);
 
         log.info("Actualizando aula con id {}", id);
 
@@ -68,15 +74,20 @@ public class AulaServiceImpl implements AulaService {
 
         log.info("Aula con id {} actualizada.", id);
 
-        return aulaMapper.aulaResponse(aula);
+        return aulaMapper.entidadAResponse(aula);
 
     }
 
 
     @Override
-    public void eliminar (long id) {
+    public void eliminar (Long id) {
 
-        Aula aula = obtenerAulaOException(id);
+        Aula aula = obtenerAula(id);
+
+        log.info("Eliminando aula.");
+
+        if (grupoRepository.existsByAulaId(id))
+            throw new EntidadRelacionadaException("No se puede eliminar el aula ya que tiene grupos asignados");
 
         aulaRepository.delete(aula);
 
@@ -85,12 +96,33 @@ public class AulaServiceImpl implements AulaService {
     }
 
 
-    private Aula obtenerAulaOException(Long id) {
 
-        log.info("Buscando aula por id: {}", id);
+    /// METODOS PRIVADOS -----
 
-        return aulaRepository.findById(id).orElseThrow(
-                () -> new RecursoNoEncontradoException("Aula no encontrado con id: " + id));
+
+
+    private Aula obtenerAula(Long id){
+        return ServiceUtils.obtenerEntidadException(aulaRepository, id, Aula.class);
+    }
+
+
+    private void validarDatosUnicos(AulaRequest request) {
+
+        log.info("Validando nombre único.");
+
+        if (aulaRepository.existsByNombreIgnoreCase(request.nombre()))
+            throw new IllegalArgumentException("Ya se encuentra registrado el nombre: " + request.nombre());
+
+    }
+
+
+    private void validarDatosUnicosActualizar(AulaRequest request, Long id) {
+
+        log.info("Validando cambio en nombre único.");
+
+        if (aulaRepository.existsByNombreIgnoreCaseAndIdNot(request.nombre(), id))
+            throw new IllegalArgumentException("Ya se encuentra un aula registrada con el nombre: " + request.nombre());
+
     }
 
 }
